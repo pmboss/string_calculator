@@ -18,6 +18,10 @@ describe('AppComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it(`should have the 'String Calculator' title`, () => {
+    expect(component.title).toEqual('String Calculator');
+  });
+
   it('should return 0 for an empty string', () => {
     component.stringValue = '';
     component.calculateSum();
@@ -44,5 +48,33 @@ describe('AppComponent', () => {
     component.calculateSum();
     expect(component.output).toBe(0);
     expect(component.error).toBe('Input string contains non-numeric values');
+  });
+
+  it('should handle a case where numbers are separated by commas and newlines', () => {
+    component.stringValue = '1\\n2,3';
+    component.calculateSum();
+    expect(component.output).toBe(6);
+    expect(component.error).toBe('');
+  });
+
+  it('should throw an error when negative numbers are included', () => {
+    component.stringValue = '1,-2,3,-4';
+    component.calculateSum();
+    expect(component.output).toBe(0);
+    expect(component.error).toBe('Negative numbers not allowed: -2, -4');
+  });
+
+  it('should handle the case with an empty number list after the custom delimiter', () => {
+    component.stringValue = '//;\\n';
+    component.calculateSum();
+    expect(component.output).toBe(0);
+    expect(component.error).toBe('');
+  });
+
+  it('should return correct sum when numbers are separated by custom delimiter and newlines', () => {
+    component.stringValue = '//;\\n1;2;3;5';
+    component.calculateSum();
+    expect(component.output).toBe(11);
+    expect(component.error).toBe('');
   });
 });

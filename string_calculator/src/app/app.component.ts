@@ -10,7 +10,7 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'string_calculator';
+  title = 'String Calculator';
   stringValue = ''
   output!: number;
   error!: string;
@@ -25,7 +25,7 @@ export class AppComponent {
     try {
       const sum = this.add(this.stringValue);
       this.output = sum;
-      this.error = '';  
+      this.error = '';
     } catch (e) {
       this.error = (e instanceof Error) ? e.message : 'An unexpected error occurred';
       this.output = 0;
@@ -33,13 +33,32 @@ export class AppComponent {
   }
 
   private add(input: string): number {
-    const numbers = input.split(',').map(Number);
+    let delimiter = /,|\\n/;
+    let negativeNo: number[] = [];
+
+    if (input.startsWith("//")) {
+      const delimiterInfo = input.match(/\/\/(.+)\\n/); //this regex check custom delimeter //[delimiter]\n[numbers…] 
+      if (delimiterInfo) {
+        delimiter = new RegExp(delimiter.source + '|' + delimiterInfo[1]); // add custom delimiter to existing delimiter
+        input = input.slice(delimiterInfo[0].length);
+      }
+    }
+    const numbers = input.split(delimiter).map(Number);
 
     if (numbers.some(isNaN)) {
       throw new Error('Input string contains non-numeric values');
     }
 
-    return numbers.reduce((a, b) => a + b, 0);
-  }
+    const total = numbers.reduce((sum, num) => {
+      if (num < 0) {
+        negativeNo.push(num);
+      }
+      return sum + num;
+    }, 0);
 
+    if (negativeNo.length) {
+      throw new Error(`Negative numbers not allowed: ${negativeNo.join(', ')}`);
+    }
+    return total;
+  }
 }
